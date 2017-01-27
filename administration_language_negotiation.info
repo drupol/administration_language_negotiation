@@ -1,6 +1,0 @@
-core = "7.x"
-description = "Provides an additional language negotiation only for administration pages."
-name = "Administration language negotiation"
-package = Multilanguage
-dependencies[] = locale
-configure = admin/config/regional/language/configure/administration_language

@@ -1,0 +1,8 @@
+name: "Administration language negotiation"
+description: "Provides an additional language negotiation only for administration pages."
+type: module
+core: "8.x"
+package: Multilanguage
+dependencies:
+- locale
+configure: language.negotiation

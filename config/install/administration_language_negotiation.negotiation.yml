@@ -1,0 +1,8 @@
+default_language: 'en'
+paths:
+ - '/admin'
+ - '/admin/*'
+ - '/admin*'
+ - '/node/add/*'
+ - '/node/*/edit'
+ - '/node'
