@@ -1,0 +1,67 @@
+<?php
+
+define('LANGUAGE_NEGOTIATION_ADMINISTRATION', 'language-administration');
+
+/**
+ * Implements hook_menu().
+ */
+function administration_language_negotiation_menu() {
+  $items = array();
+
+  $items['admin/config/regional/language/configure/administration_language'] = array(
+    'title' => 'Administration language negotiation',
+    'description' => 'Configure the administration language negotiation',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('administration_language_negotiation_admin'),
+    'access arguments' => array('administer languages'),
+    'file' => 'administration_language_negotiation.admin.inc',
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_language_negotiation_info().
+ */
+function administration_language_negotiation_language_negotiation_info() {
+  return array(
+    LANGUAGE_NEGOTIATION_ADMINISTRATION => array(
+      'types' => array(
+        LANGUAGE_TYPE_INTERFACE,
+      ),
+      'callbacks' => array(
+        'language' => 'administration_language_negotiation_admin_language',
+      ),
+      'file' => drupal_get_path('module', 'administration_language_negotiation') . '/administration_language_negotiation.module',
+      'weight' => -50,
+      'name' => t('Administration path'),
+      'description' => t('Set a default language on specific paths.'),
+      'config' => 'admin/config/regional/language/configure/administration_language',
+    )
+  );
+}
+
+/**
+ * Language negotiation custom callback.
+ */
+function administration_language_negotiation_admin_language() {
+  include 'includes/path.inc';
+
+  $admin_path = array_filter(variable_get('administration_language_negotiation_paths', array()));
+
+  $languages = language_list('enabled');
+  foreach ($languages[1] as $language) {
+    if ($language->prefix) {
+      foreach ($admin_path as $path) {
+        $admin_path[] = $language->prefix . '/' . trim($path, '/');
+      }
+    }
+  }
+
+  if (drupal_match_path(current_path(), implode("\n", $admin_path))) {
+    return variable_get('administration_language_negotiation_default', FALSE);
+  }
+
+  return FALSE;
+}
