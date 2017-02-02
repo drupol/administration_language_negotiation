@@ -65,3 +65,43 @@ function administration_language_negotiation_admin_language() {
 
   return FALSE;
 }
+
+/**
+ * Implements hook_menu_link_alter().
+ */
+function administration_language_negotiation_menu_link_alter(&$item) {
+  if ('management' == $item['menu_name'] || 'user/logout' == $item['link_path']) {
+    $item['options']['alter'] = TRUE;
+  }
+}
+
+/**
+ * Implements hook_translated_menu_link_alter().
+ */
+function administration_language_negotiation_translated_menu_link_alter(&$item, $map) {
+  if ('management' == $item['menu_name'] || 'user/logout' == $item['link_path']) {
+    if ($default_language = variable_get('administration_language_negotiation_default', FALSE)) {
+      global $language;
+
+      $languages = language_list('enabled');
+      if (isset($languages[1][$default_language])) {
+        // save the current language and activate the administration language...
+        $current_language = $language;
+        $language = $languages[1][$default_language];
+
+        // ...modify the menu item...
+        _menu_item_localize($item, $map, TRUE);
+        if ('user/logout' == $item['link_path']) {
+          $item['title'] = t('Log out');
+        }
+
+        if ($item['title_callback'] == 't' && !empty($item['title_arguments'])) {
+          $item['title'] = t($item['title'], menu_unserialize($item['title_arguments'], $map));
+        }
+
+        // ...and restore the previous language
+        $language = $current_language;
+      }
+    }
+  }
+}
