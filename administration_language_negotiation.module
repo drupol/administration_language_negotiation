@@ -89,78 +89,8 @@ function _administration_language_negotiation_admin_get_language($path_to_check)
  */
 function administration_language_negotiation_menu_link_alter(&$item) {
   if (_administration_language_negotiation_admin_get_language($item['link_path'])) {
-    $item['options']['alter'] = TRUE;
-  }
-}
-
-/**
- * Implements hook_translated_menu_link_alter().
- */
-function administration_language_negotiation_translated_menu_link_alter(&$item, $map) {
-  if (_administration_language_negotiation_admin_get_language($item['link_path'])) {
     if ($default_language = variable_get('administration_language_negotiation_default', FALSE)) {
-      _menu_item_localize_copy($item, $map, TRUE, $default_language);
+      $item['link_title'] = t($item['link_title'], array(), array('langcode' => $default_language));
     }
   }
 }
-
-/**
- * Copycat of the _menu_item_localize() of Drupal.
- *
- * Adding a new parameter to force the language to use.
- */
-function _menu_item_localize_copy(&$item, $map, $link_translate = FALSE, $langcode) {
-  $callback = $item['title_callback'];
-  $item['localized_options'] = $item['options'];
-  // All 'class' attributes are assumed to be an array during rendering, but
-  // links stored in the database may use an old string value.
-  // @todo In order to remove this code we need to implement a database update
-  //   including unserializing all existing link options and running this code
-  //   on them, as well as adding validation to menu_link_save().
-  if (isset($item['options']['attributes']['class']) && is_string($item['options']['attributes']['class'])) {
-    $item['localized_options']['attributes']['class'] = explode(' ', $item['options']['attributes']['class']);
-  }
-  // If we are translating the title of a menu link, and its title is the same
-  // as the corresponding router item, then we can use the title information
-  // from the router. If it's customized, then we need to use the link title
-  // itself; can't localize.
-  // If we are translating a router item (tabs, page, breadcrumb), then we
-  // can always use the information from the router item.
-  if (!$link_translate || ($item['title'] == $item['link_title'])) {
-    // t() is a special case. Since it is used very close to all the time,
-    // we handle it directly instead of using indirect, slower methods.
-    if ($callback == 't') {
-      if (empty($item['title_arguments'])) {
-        $item['title'] = t($item['title'], array(), array('langcode' => $langcode));
-      }
-      else {
-        $item['title'] = t($item['title'], menu_unserialize($item['title_arguments'], $map), array('langcode' => $langcode));
-      }
-    }
-    elseif ($callback && function_exists($callback)) {
-      if (empty($item['title_arguments'])) {
-        $item['title'] = $callback($item['title'], $langcode);
-      }
-      else {
-        $item['title'] = call_user_func_array($callback, menu_unserialize($item['title_arguments'], $map));
-      }
-      // Avoid calling check_plain again on l() function.
-      if ($callback == 'check_plain') {
-        $item['localized_options']['html'] = TRUE;
-      }
-    }
-  }
-  elseif ($link_translate) {
-    $item['title'] = $item['link_title'];
-  }
-
-  // Translate description, see the motivation above.
-  if (!empty($item['description'])) {
-    $original_description = $item['description'];
-    $item['description'] = t($item['description'], array(), array('langcode' => $langcode));
-    if ($link_translate && isset($item['options']['attributes']['title']) && $item['options']['attributes']['title'] == $original_description) {
-      $item['localized_options']['attributes']['title'] = $item['description'];
-    }
-  }
-}
-
