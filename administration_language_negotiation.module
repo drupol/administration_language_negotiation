@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Main module page of administration language negotiation module.
+ */
+
 define('LANGUAGE_NEGOTIATION_ADMINISTRATION', 'language-administration');
 
 /**
@@ -82,15 +87,4 @@ function _administration_language_negotiation_admin_get_language($path_to_check)
   }
 
   return FALSE;
-}
-
-/**
- * Implements hook_menu_link_alter().
- */
-function administration_language_negotiation_menu_link_alter(&$item) {
-  if (_administration_language_negotiation_admin_get_language($item['link_path'])) {
-    if ($default_language = variable_get('administration_language_negotiation_default', FALSE)) {
-      $item['link_title'] = t($item['link_title'], array(), array('langcode' => $default_language));
-    }
-  }
 }

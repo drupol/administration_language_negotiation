@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * The install page of the administration language negotiation module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function administration_language_negotiation_install() {
+  if (empty(variable_get('administration_language_negotiation_paths', array()))) {
+    variable_set(
+      'administration_language_negotiation_paths',
+      array(
+        'admin/*',
+        'node/*/edit',
+        '*admin_menu/*',
+      )
+    );
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function administration_language_negotiation_uninstall() {
+  variable_del('administration_language_negotiation_paths');
+}
