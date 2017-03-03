@@ -1,7 +1,5 @@
 Table of content:
 =================
-- [Installation](#installation)
-
 
 # Installation
 Install as usual, see http://drupal.org/node/895232 for further information.
