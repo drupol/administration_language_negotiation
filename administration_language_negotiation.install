@@ -26,4 +26,5 @@ function administration_language_negotiation_install() {
  */
 function administration_language_negotiation_uninstall() {
   variable_del('administration_language_negotiation_paths');
+  variable_del('administration_language_negotiation_default');
 }
