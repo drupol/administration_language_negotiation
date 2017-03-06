@@ -13,8 +13,8 @@ function administration_language_negotiation_install() {
     variable_set(
       'administration_language_negotiation_paths',
       array(
-        'admin/*',
-        '*/node/*/edit*',
+        '*/admin/*',
+        '*/node/*/edit',
         '*/admin_menu/*',
       )
     );

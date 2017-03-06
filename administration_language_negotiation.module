@@ -71,11 +71,13 @@ function administration_language_negotiation_admin_language() {
  *   True if the path match, False otherwise.
  */
 function _administration_language_negotiation_admin_get_language($path_to_check) {
-  $admin_path = array_filter(variable_get('administration_language_negotiation_paths', array()));
-  foreach ($admin_path as $path) {
-    if (drupal_match_path($path_to_check, $path)) {
-      return TRUE;
-    }
+  $admin_path = implode("\n", array_filter(
+    variable_get('administration_language_negotiation_paths', array())
+  ));
+
+  if (drupal_match_path($path_to_check, $admin_path)) {
+    return TRUE;
   }
+
   return FALSE;
 }
