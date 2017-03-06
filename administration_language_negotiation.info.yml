@@ -3,6 +3,7 @@ description: "Provides an additional language negotiation only for administratio
 type: module
 core: "8.x"
 package: Multilanguage
+configure: administration_language_negotiation.negotiation_administration_language
 dependencies:
 - locale
 configure: language.negotiation
