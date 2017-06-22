@@ -16,9 +16,11 @@ function administration_language_negotiation_install() {
         '*admin',
         '*admin/*',
         '*node/*/edit*',
+        '*node/*/translate*',
         '*admin_menu/*',
         '/*/admin/*',
         '/*/node/*/edit',
+        '/*/node/*/translate',
         '/*/admin_menu/*',
       )
     );
