@@ -5,4 +5,5 @@ paths:
  - '/admin*'
  - '/node/add/*'
  - '/node/*/edit'
+ - '/node/*/translations'
  - '/node'
