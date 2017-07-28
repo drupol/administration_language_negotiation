@@ -10,7 +10,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 /**
  * Base class for administration language administration condition.
  */
-abstract class AdministrationLanguageNegotiationConditionBase extends ConditionPluginBase implements AdministrationLanguageNegotiationConditionInterface, ContainerFactoryPluginInterface, ConditionInterface {
+abstract class AdministrationLanguageNegotiationConditionBase extends ConditionPluginBase implements AdministrationLanguageNegotiationConditionInterface, ContainerFactoryPluginInterface {
 
   /**
    * The condition's weight, order of execution.
