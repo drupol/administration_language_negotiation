@@ -13,38 +13,38 @@ use Drupal\Core\Condition\Annotation\Condition;
  *
  * @Annotation
  */
-class AdministrationLanguageNegotiationCondition extends Condition {
+class AdministrationLanguageNegotiationCondition extends Condition
+{
 
   /**
    * The administration language negotiation condition plugin ID.
    *
    * @var string
    */
-  public $id;
+    public $id;
 
-  /**
-   * The default weight of the administration language negotiation condition plugin.
-   *
-   * @var int
-   */
-  public $weight;
+    /**
+     * The default weight of the administration language negotiation condition plugin.
+     *
+     * @var int
+     */
+    public $weight;
 
-  /**
-   * The human-readable name of the administration language negotiation condition plugin.
-   *
-   * @var \Drupal\Core\Annotation\Translation
-   *
-   * @ingroup plugin_translatable
-   */
-  public $name;
+    /**
+     * The human-readable name of the administration language negotiation condition plugin.
+     *
+     * @var \Drupal\Core\Annotation\Translation
+     *
+     * @ingroup plugin_translatable
+     */
+    public $name;
 
-  /**
-   * The description of the administration language negotiation condition plugin.
-   *
-   * @var \Drupal\Core\Annotation\Translation
-   *
-   * @ingroup plugin_translatable
-   */
-  public $description;
-
+    /**
+     * The description of the administration language negotiation condition plugin.
+     *
+     * @var \Drupal\Core\Annotation\Translation
+     *
+     * @ingroup plugin_translatable
+     */
+    public $description;
 }
