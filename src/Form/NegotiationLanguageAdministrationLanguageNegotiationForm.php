@@ -85,12 +85,12 @@ class NegotiationLanguageAdministrationLanguageNegotiationForm extends ConfigFor
       $options[$language->getId()] = $language->getName();
     }
 
-    $form['default_language'] = array(
+    $form['default_language'] = [
       '#title' => 'Default language',
       '#type' => 'radios',
       '#default_value' => $this->config->get('default_language'),
       '#options' => $options,
-    );
+    ];
 
     foreach ($manager->getDefinitions() as $def) {
       $condition_plugin = $manager->createInstance($def['id']);
@@ -154,6 +154,5 @@ class NegotiationLanguageAdministrationLanguageNegotiationForm extends ConfigFor
     // forms in Drupal 8 core).
     $form_state->setRedirect('language.negotiation');
   }
-
 
 }

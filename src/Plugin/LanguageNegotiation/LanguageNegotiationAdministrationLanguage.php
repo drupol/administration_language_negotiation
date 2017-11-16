@@ -3,16 +3,10 @@
 namespace Drupal\administration_language_negotiation\Plugin\LanguageNegotiation;
 
 use Drupal\administration_language_negotiation\AdministrationLanguageNegotiationConditionManager;
-use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\language\LanguageNegotiationMethodBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Drupal\Component\Utility\Unicode;
-use Drupal\Core\Path\AliasManagerInterface;
-use Drupal\Core\Path\CurrentPathStack;
-use Drupal\Core\Path\PathMatcherInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Class for identifying language from a administration language negotiation.
@@ -84,6 +78,6 @@ class LanguageNegotiationAdministrationLanguage extends LanguageNegotiationMetho
     }
 
     return FALSE;
- }
+  }
 
 }

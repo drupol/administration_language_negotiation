@@ -2,7 +2,6 @@
 
 namespace Drupal\administration_language_negotiation;
 
-use Drupal\Core\Condition\ConditionInterface;
 use Drupal\Core\Condition\ConditionPluginBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;

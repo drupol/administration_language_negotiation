@@ -46,4 +46,5 @@ class AdministrationLanguageNegotiationCondition extends Condition {
    * @ingroup plugin_translatable
    */
   public $description;
+
 }
