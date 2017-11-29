@@ -10,6 +10,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Path\AliasManagerInterface;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Path\PathMatcherInterface;
+use Drupal\language\ConfigurableLanguageManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -62,6 +63,13 @@ class Paths extends AdministrationLanguageNegotiationConditionBase implements
     protected $configFactory;
 
     /**
+      * The configurable language manager.
+      *
+      * @var Drupal\language\ConfigurableLanguageManager
+      */
+    protected $languageManager;
+
+    /**
      * Constructs a RequestPath condition plugin.
      *
      * @param \Drupal\Core\Path\AliasManagerInterface $alias_manager
@@ -87,7 +95,8 @@ class Paths extends AdministrationLanguageNegotiationConditionBase implements
         ConfigFactory $config_factory,
         array $configuration,
         $plugin_id,
-        array $plugin_definition
+        array $plugin_definition,
+        ConfigurableLanguageManager $language_manager
     ) {
         parent::__construct($configuration, $plugin_id, $plugin_definition);
         $this->aliasManager = $alias_manager;
@@ -95,6 +104,7 @@ class Paths extends AdministrationLanguageNegotiationConditionBase implements
         $this->requestStack = $request_stack;
         $this->currentPath = $current_path;
         $this->configFactory = $config_factory;
+        $this->languageManager = $language_manager;
     }
 
     /**
@@ -110,7 +120,8 @@ class Paths extends AdministrationLanguageNegotiationConditionBase implements
             $container->get('config.factory'),
             $configuration,
             $plugin_id,
-            $plugin_definition
+            $plugin_definition,
+            $container->get('language_manager')
         );
     }
 
@@ -119,8 +130,8 @@ class Paths extends AdministrationLanguageNegotiationConditionBase implements
      */
     public function evaluate()
     {
+        $langcode = $this->languageManager->getCurrentLanguage()->getId();
         $prefixes = $this->configFactory->get('language.negotiation')->get('url.prefixes');
-
         $admin_paths = array_filter($this->configuration[$this->getPluginId()]);
 
         foreach ($admin_paths as $admin_path) {
@@ -136,9 +147,14 @@ class Paths extends AdministrationLanguageNegotiationConditionBase implements
             $request = $this->requestStack->getCurrentRequest();
             // Compare the lowercase path alias (if any) and internal path.
             $path = $this->currentPath->getPath($request);
+
             // Do not trim a trailing slash if that is the complete path.
             $path = '/' === $path ? $path : rtrim($path, '/');
-            $path_alias = Unicode::strtolower($this->aliasManager->getAliasByPath($path));
+
+            // Aliases have a language property that must be used to
+            // search for a match on the current path alias, or the
+            // default language will be used instead.
+            $path_alias = Unicode::strtolower($this->aliasManager->getAliasByPath($path, $langcode));
 
             $is_on_blacklisted_path = $this->pathMatcher->matchPath($path_alias, $blacklisted_path) ||
                 (($path != $path_alias) && $this->pathMatcher->matchPath($path, $blacklisted_path));
@@ -164,7 +180,7 @@ class Paths extends AdministrationLanguageNegotiationConditionBase implements
                 'Specify on which paths the administration language negotiations should be circumvented.'
             ) . '<br />'
                 . $this->t(
-                    "Specify pages by using their paths. A path must start with <em>/</em>. 
+                    "Specify pages by using their paths. A path must start with <em>/</em>.
                           Enter one path per line. The '*' character is a wildcard.
                           Example paths are %blog for the blog page and %blog-wildcard for every personal blog.
                           %front is the front page.",
