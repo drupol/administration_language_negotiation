@@ -1,0 +1,3 @@
+use_administration_language_negotiation:
+  title: 'Administration language negotiation'
+  description: 'Gives the option to select a preferred administration language even if not an administrator'
