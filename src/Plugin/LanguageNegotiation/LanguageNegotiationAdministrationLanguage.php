@@ -75,14 +75,17 @@ class LanguageNegotiationAdministrationLanguage extends LanguageNegotiationMetho
      */
     public function getLangcode(Request $request = null)
     {
-        $config = $this->config->get('administration_language_negotiation.negotiation');
-        $manager = $this->conditionManager;
+        // Run only for allowed users.
+        if ($this->currentUser->hasPermission('use_administration_language_negotiation')) {
+            $config = $this->config->get('administration_language_negotiation.negotiation');
+            $manager = $this->conditionManager;
 
-        foreach ($manager->getDefinitions() as $def) {
-            /** @var \Drupal\Core\Executable\ExecutableInterface $condition_plugin */
-            $condition_plugin = $manager->createInstance($def['id'], $config->get());
-            if (!$manager->execute($condition_plugin)) {
-                return $config->get('default_language');
+            foreach ($manager->getDefinitions() as $def) {
+                /** @var \Drupal\Core\Executable\ExecutableInterface $condition_plugin */
+                $condition_plugin = $manager->createInstance($def['id'], $config->get());
+                if (!$manager->execute($condition_plugin)) {
+                    return $this->currentUser->getPreferredAdminLangcode();
+                }
             }
         }
 
