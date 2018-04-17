@@ -76,7 +76,7 @@ class LanguageNegotiationAdministrationLanguage extends LanguageNegotiationMetho
     public function getLangcode(Request $request = null)
     {
         // Run only for allowed users.
-        if ($this->currentUser->hasPermission('use_administration_language_negotiation')) {
+        if ($this->currentUser->hasPermission('use administration language negotiation')) {
             $config = $this->config->get('administration_language_negotiation.negotiation');
             $manager = $this->conditionManager;
 

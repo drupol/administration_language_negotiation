@@ -28,7 +28,7 @@ function administration_language_negotiation_help($route_name, RouteMatchInterfa
 function administration_language_negotiation_form_user_form_alter(&$form, FormStateInterface $form_state) {
   /** @var $user \Drupal\user\Entity\User */
   $user = $form_state->getFormObject()->getEntity();
-  if ($user->hasPermission('use_administration_language_negotiation')) {
+  if ($user->hasPermission('use administration language negotiation')) {
     $form['language']['preferred_admin_langcode']['#access'] = TRUE;
   }
 }
