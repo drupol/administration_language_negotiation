@@ -122,9 +122,8 @@ class AdminRoutes extends AdministrationLanguageNegotiationConditionBase impleme
     public function isAdminRoute()
     {
         $request = $this->requestStack->getCurrentRequest();
-        $router = \Drupal::service('router.no_access_checks');
 
-        if (($match = $router->matchRequest($request)) && isset($match['_route_object'])) {
+        if (($match = $this->router->matchRequest($request)) && isset($match['_route_object'])) {
             return (bool) $match['_route_object']->getOption('_admin_route');
         }
 
