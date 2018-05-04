@@ -2,6 +2,9 @@ administration_language_negotiation.negotiation:
   type: config_object
   label: 'Administration language negotiation settings'
   mapping:
+    default_language:
+      type: string
+      label: 'Administration language default'
     paths:
       type: sequence
       label: 'paths'

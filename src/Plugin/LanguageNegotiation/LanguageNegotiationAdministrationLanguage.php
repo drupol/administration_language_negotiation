@@ -80,11 +80,20 @@ class LanguageNegotiationAdministrationLanguage extends LanguageNegotiationMetho
             $config = $this->config->get('administration_language_negotiation.negotiation');
             $manager = $this->conditionManager;
 
+            $default_language = $config->get('default_language');
+
             foreach ($manager->getDefinitions() as $def) {
                 /** @var \Drupal\Core\Executable\ExecutableInterface $condition_plugin */
                 $condition_plugin = $manager->createInstance($def['id'], $config->get());
                 if (!$manager->execute($condition_plugin)) {
-                    return $this->currentUser->getPreferredAdminLangcode();
+                    // Setting argument to FALSE to make sure it returns empty string instead of default language.
+                    $language = $this->currentUser->getPreferredAdminLangcode(FALSE);
+
+                    if (empty($language)) {
+                        $language = $default_language;
+                    }
+
+                    return $language;
                 }
             }
         }
