@@ -5,7 +5,6 @@ namespace Drupal\administration_language_negotiation\Form;
 use Drupal\Core\Executable\ExecutableManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Language\LanguageManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -28,23 +27,15 @@ class NegotiationLanguageAdministrationLanguageNegotiationForm extends ConfigFor
     protected $administrationLanguageNegotiationConditionManager;
 
     /**
-     * The language manager.
-     *
-     * @var \Drupal\Core\Language\LanguageManagerInterface
-     */
-    protected $languageManager;
-
-    /**
      * NegotiationLanguageAdministrationLanguageNegotiationForm constructor.
      *
      * @param \Drupal\Core\Executable\ExecutableManagerInterface $plugin_manager
      *   The plugin manager.
      */
-    public function __construct(ExecutableManagerInterface $plugin_manager, LanguageManagerInterface $language_manager)
+    public function __construct(ExecutableManagerInterface $plugin_manager)
     {
         parent::__construct($this->configFactory());
         $this->administrationLanguageNegotiationConditionManager = $plugin_manager;
-        $this->languageManager = $language_manager;
     }
 
     /**
@@ -53,8 +44,7 @@ class NegotiationLanguageAdministrationLanguageNegotiationForm extends ConfigFor
     public static function create(ContainerInterface $container)
     {
         return new static(
-            $container->get('plugin.manager.administration_language_negotiation_condition'),
-            $container->get('language_manager')
+            $container->get('plugin.manager.administration_language_negotiation_condition')
         );
     }
 
@@ -73,20 +63,6 @@ class NegotiationLanguageAdministrationLanguageNegotiationForm extends ConfigFor
     {
         $this->config = $this->config('administration_language_negotiation.negotiation');
         $manager = $this->administrationLanguageNegotiationConditionManager;
-
-        $languages = $this->languageManager->getLanguages();
-
-        $options = [];
-        foreach ($languages as $language) {
-            $options[$language->getId()] = $language->getName();
-        }
-
-        $form['default_language'] = [
-            '#title' => 'Default language',
-            '#type' => 'radios',
-            '#default_value' => $this->config->get('default_language'),
-            '#options' => $options,
-        ];
 
         foreach ($manager->getDefinitions() as $def) {
             $condition_plugin = $manager->createInstance($def['id']);
@@ -137,7 +113,6 @@ class NegotiationLanguageAdministrationLanguageNegotiationForm extends ConfigFor
             }
         }
 
-        $this->config->set('default_language', $form_state->getValue('default_language'));
         $this->config->save();
 
         foreach ($form_state->get(['conditions']) as $condition) {
