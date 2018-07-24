@@ -6,3 +6,4 @@ paths:
  - '/node/*/edit'
  - '/node/*/translations'
  - '/node'
+admin_routes: false

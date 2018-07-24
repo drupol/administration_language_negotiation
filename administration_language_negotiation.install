@@ -22,8 +22,17 @@ function administration_language_negotiation_uninstall() {
 /**
  * Remove default_language config.
  */
-function administration_language_negotioation_update_8100() {
+function administration_language_negotiation_update_8100() {
   $config = \Drupal::configFactory()->getEditable('administration_language_negotiation.negotiation');
   $config->clear('default_language');
+  $config->save();
+}
+
+/**
+ * Set admin_routes setting to false.
+ */
+function administration_language_negotiation_update_8101() {
+  $config = \Drupal::configFactory()->getEditable('administration_language_negotiation.negotiation');
+  $config->set('admin_routes', false);
   $config->save();
 }
