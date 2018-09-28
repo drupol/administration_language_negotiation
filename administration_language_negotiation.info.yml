@@ -5,5 +5,5 @@ core: "8.x"
 package: Multilanguage
 configure: administration_language_negotiation.negotiation_administration_language
 dependencies:
-- locale
+- drupal:locale
 configure: language.negotiation
