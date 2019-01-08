@@ -4,12 +4,14 @@ namespace Drupal\administration_language_negotiation\Plugin\AdministrationLangua
 
 use Drupal\administration_language_negotiation\AdministrationLanguageNegotiationConditionBase;
 use Drupal\administration_language_negotiation\AdministrationLanguageNegotiationConditionInterface;
-use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\AdminContext;
 use Drupal\Core\Routing\Router;
-use Drupal\language\ConfigurableLanguageManager;
+use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * Class for the Blacklisted paths condition plugin.
@@ -25,26 +27,12 @@ class AdminRoutes extends AdministrationLanguageNegotiationConditionBase impleme
     AdministrationLanguageNegotiationConditionInterface
 {
 
-  /**
-   * The request stack.
-   *
-   * @var \Symfony\Component\HttpFoundation\RequestStack
-   */
+    /**
+     * The request stack.
+     *
+     * @var \Symfony\Component\HttpFoundation\RequestStack
+     */
     protected $requestStack;
-
-    /**
-     * The config factory.
-     *
-     * @var \Drupal\Core\Config\ConfigFactory
-     */
-    protected $configFactory;
-
-    /**
-     * The configurable language manager.
-     *
-     * @var \Drupal\language\ConfigurableLanguageManager
-     */
-    protected $languageManager;
 
     /**
      * The router manager.
@@ -54,16 +42,21 @@ class AdminRoutes extends AdministrationLanguageNegotiationConditionBase impleme
     protected $router;
 
     /**
-     * Constructs a RequestPath condition plugin.
+     * The admin context.
      *
-     * @param \Drupal\Core\Path\AliasManagerInterface $alias_manager
-     *   An alias manager to find the alias for the current system path.
-     * @param \Drupal\Core\Path\PathMatcherInterface $path_matcher
-     *   The path matcher service.
+     * @var \Drupal\Core\Routing\AdminContext
+     */
+    protected $adminContext;
+
+    /**
+     * AdminRoutes constructor.
+     *
      * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
      *   The request stack.
-     * @param \Drupal\Core\Path\CurrentPathStack $current_path
-     *   The current path.
+     * @param \Drupal\Core\Routing\Router $router
+     *   The router.
+     * @param \Drupal\Core\Routing\AdminContext $admin_context
+     *   The admin context.
      * @param array $configuration
      *   A configuration array containing information about the plugin instance.
      * @param string $plugin_id
@@ -73,18 +66,16 @@ class AdminRoutes extends AdministrationLanguageNegotiationConditionBase impleme
      */
     public function __construct(
         RequestStack $request_stack,
-        ConfigFactory $config_factory,
+        Router $router,
+        AdminContext $admin_context,
         array $configuration,
         $plugin_id,
-        array $plugin_definition,
-        ConfigurableLanguageManager $language_manager,
-        Router $router
+        array $plugin_definition
     ) {
         parent::__construct($configuration, $plugin_id, $plugin_definition);
         $this->requestStack = $request_stack;
-        $this->configFactory = $config_factory;
-        $this->languageManager = $language_manager;
         $this->router = $router;
+        $this->adminContext = $admin_context;
     }
 
     /**
@@ -94,12 +85,11 @@ class AdminRoutes extends AdministrationLanguageNegotiationConditionBase impleme
     {
         return new static(
             $container->get('request_stack'),
-            $container->get('config.factory'),
+            $container->get('router.no_access_checks'),
+            $container->get('router.admin_context'),
             $configuration,
             $plugin_id,
-            $plugin_definition,
-            $container->get('language_manager'),
-            $container->get('router.no_access_checks')
+            $plugin_definition
         );
     }
 
@@ -121,10 +111,17 @@ class AdminRoutes extends AdministrationLanguageNegotiationConditionBase impleme
      */
     public function isAdminRoute()
     {
-        $request = $this->requestStack->getCurrentRequest();
-
-        if (($match = $this->router->matchRequest($request)) && isset($match['_route_object'])) {
-            return (bool) $match['_route_object']->getOption('_admin_route');
+        // If called from an event subscriber, the request may not have
+        // the route object yet (it is still being built).
+        try {
+            $match = $this->router->matchRequest($this->requestStack->getCurrentRequest());
+        } catch (ResourceNotFoundException $e) {
+            return false;
+        } catch (AccessDeniedHttpException $e) {
+            return false;
+        }
+        if (($match) && isset($match[RouteObjectInterface::ROUTE_OBJECT])) {
+            return $this->adminContext->isAdminRoute($match[RouteObjectInterface::ROUTE_OBJECT]);
         }
 
         return false;
@@ -136,12 +133,12 @@ class AdminRoutes extends AdministrationLanguageNegotiationConditionBase impleme
     public function buildConfigurationForm(array $form, FormStateInterface $form_state)
     {
         $form[$this->getPluginId()] = [
-        '#title' => $this->t('Enable'),
-        '#type' => 'checkbox',
-        '#default_value' => $this->configuration[$this->getPluginId()],
-        '#description' => $this->t(
-            'Detects if the current path is admin route.'
-        ),
+            '#title' => $this->t('Enable'),
+            '#type' => 'checkbox',
+            '#default_value' => $this->configuration[$this->getPluginId()],
+            '#description' => $this->t(
+                'Detects if the current path is admin route.'
+            ),
         ];
 
         return $form;
