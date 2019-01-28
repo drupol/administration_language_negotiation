@@ -5,6 +5,8 @@
  * Module installation code.
  */
 
+declare(strict_types = 1);
+
 use Drupal\administration_language_negotiation\Plugin\LanguageNegotiation\LanguageNegotiationAdministrationLanguage;
 
 /**
@@ -33,6 +35,6 @@ function administration_language_negotiation_update_8100() {
  */
 function administration_language_negotiation_update_8101() {
   $config = \Drupal::configFactory()->getEditable('administration_language_negotiation.negotiation');
-  $config->set('admin_routes', false);
+  $config->set('admin_routes', FALSE);
   $config->save();
 }

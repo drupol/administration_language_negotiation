@@ -5,6 +5,8 @@
  * Main module file.
  */
 
+declare(strict_types = 1);
+
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -12,22 +14,22 @@ use Drupal\Core\Form\FormStateInterface;
  * Implements hook_help().
  */
 function administration_language_negotiation_help($route_name, RouteMatchInterface $route_match) {
-  switch ($route_name) {
-    case 'help.page.administration_language_negotiation':
-      $output = 'TODO';
-      return $output;
+  $help = '';
 
-    default:
-      return '';
+  if ($route_name === 'help.page.administration_language_negotiation') {
+    $help = 'TODO';
   }
+
+  return $help;
 }
 
 /**
  * Implements hook_form_alter().
  */
-function administration_language_negotiation_form_user_form_alter(&$form, FormStateInterface $form_state) {
-  /** @var $user \Drupal\user\Entity\User */
+function administration_language_negotiation_form_user_form_alter(array &$form, FormStateInterface $form_state) {
+  /* @var $user \Drupal\user\Entity\User */
   $user = $form_state->getFormObject()->getEntity();
+
   if ($user->hasPermission('use administration language negotiation')) {
     $form['language']['preferred_admin_langcode']['#access'] = TRUE;
   }

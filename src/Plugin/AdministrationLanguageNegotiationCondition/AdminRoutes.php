@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Drupal\administration_language_negotiation\Plugin\AdministrationLanguageNegotiationCondition;
 
 use Drupal\administration_language_negotiation\AdministrationLanguageNegotiationConditionBase;
@@ -24,47 +26,46 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  * )
  */
 class AdminRoutes extends AdministrationLanguageNegotiationConditionBase implements
-    AdministrationLanguageNegotiationConditionInterface
-{
+    AdministrationLanguageNegotiationConditionInterface {
 
-    /**
-     * The request stack.
-     *
-     * @var \Symfony\Component\HttpFoundation\RequestStack
-     */
-    protected $requestStack;
+  /**
+   * The admin context.
+   *
+   * @var \Drupal\Core\Routing\AdminContext
+   */
+  protected $adminContext;
 
-    /**
-     * The router manager.
-     *
-     * @var \Drupal\Core\Routing\Router
-     */
-    protected $router;
+  /**
+   * The request stack.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
 
-    /**
-     * The admin context.
-     *
-     * @var \Drupal\Core\Routing\AdminContext
-     */
-    protected $adminContext;
+  /**
+   * The router manager.
+   *
+   * @var \Drupal\Core\Routing\Router
+   */
+  protected $router;
 
-    /**
-     * AdminRoutes constructor.
-     *
-     * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
-     *   The request stack.
-     * @param \Drupal\Core\Routing\Router $router
-     *   The router.
-     * @param \Drupal\Core\Routing\AdminContext $admin_context
-     *   The admin context.
-     * @param array $configuration
-     *   A configuration array containing information about the plugin instance.
-     * @param string $plugin_id
-     *   The plugin_id for the plugin instance.
-     * @param array $plugin_definition
-     *   The plugin implementation definition.
-     */
-    public function __construct(
+  /**
+   * AdminRoutes constructor.
+   *
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack.
+   * @param \Drupal\Core\Routing\Router $router
+   *   The router.
+   * @param \Drupal\Core\Routing\AdminContext $admin_context
+   *   The admin context.
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param array $plugin_definition
+   *   The plugin implementation definition.
+   */
+  public function __construct(
         RequestStack $request_stack,
         Router $router,
         AdminContext $admin_context,
@@ -72,75 +73,74 @@ class AdminRoutes extends AdministrationLanguageNegotiationConditionBase impleme
         $plugin_id,
         array $plugin_definition
     ) {
-        parent::__construct($configuration, $plugin_id, $plugin_definition);
-        $this->requestStack = $request_stack;
-        $this->router = $router;
-        $this->adminContext = $admin_context;
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->requestStack = $request_stack;
+    $this->router = $router;
+    $this->adminContext = $admin_context;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    $form[$this->getPluginId()] = [
+      '#title' => $this->t('Enable'),
+      '#type' => 'checkbox',
+      '#default_value' => $this->configuration[$this->getPluginId()],
+      '#description' => $this->t(
+            'Detects if the current path is admin route.'
+      ),
+    ];
+
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+        $container->get('request_stack'),
+        $container->get('router.no_access_checks'),
+        $container->get('router.admin_context'),
+        $configuration,
+        $plugin_id,
+        $plugin_definition
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function evaluate() {
+    $active = $this->configuration[$this->getPluginId()];
+
+    return ($active && $this->isAdminRoute()) ? $this->block() : $this->pass();
+  }
+
+  /**
+   * Checks if the current request is admin route.
+   *
+   * @return bool
+   *   TRUE if the current request is admin route.
+   */
+  public function isAdminRoute() {
+    // If called from an event subscriber, the request may not have
+    // the route object yet (it is still being built).
+    try {
+      $match = $this->router->matchRequest($this->requestStack->getCurrentRequest());
+    }
+    catch (ResourceNotFoundException $e) {
+      return FALSE;
+    }
+    catch (AccessDeniedHttpException $e) {
+      return FALSE;
+    }
+    if (($match) && isset($match[RouteObjectInterface::ROUTE_OBJECT])) {
+      return $this->adminContext->isAdminRoute($match[RouteObjectInterface::ROUTE_OBJECT]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition)
-    {
-        return new static(
-            $container->get('request_stack'),
-            $container->get('router.no_access_checks'),
-            $container->get('router.admin_context'),
-            $configuration,
-            $plugin_id,
-            $plugin_definition
-        );
-    }
+    return FALSE;
+  }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function evaluate()
-    {
-        $active = $this->configuration[$this->getPluginId()];
-
-        return ($active && $this->isAdminRoute()) ? $this->block() : $this->pass();
-    }
-
-    /**
-     * Checks if the current request is admin route.
-     *
-     * @return bool
-     *   TRUE if the current request is admin route.
-     */
-    public function isAdminRoute()
-    {
-        // If called from an event subscriber, the request may not have
-        // the route object yet (it is still being built).
-        try {
-            $match = $this->router->matchRequest($this->requestStack->getCurrentRequest());
-        } catch (ResourceNotFoundException $e) {
-            return false;
-        } catch (AccessDeniedHttpException $e) {
-            return false;
-        }
-        if (($match) && isset($match[RouteObjectInterface::ROUTE_OBJECT])) {
-            return $this->adminContext->isAdminRoute($match[RouteObjectInterface::ROUTE_OBJECT]);
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function buildConfigurationForm(array $form, FormStateInterface $form_state)
-    {
-        $form[$this->getPluginId()] = [
-            '#title' => $this->t('Enable'),
-            '#type' => 'checkbox',
-            '#default_value' => $this->configuration[$this->getPluginId()],
-            '#description' => $this->t(
-                'Detects if the current path is admin route.'
-            ),
-        ];
-
-        return $form;
-    }
 }

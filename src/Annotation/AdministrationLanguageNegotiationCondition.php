@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Drupal\administration_language_negotiation\Annotation;
 
 use Drupal\Core\Condition\Annotation\Condition;
@@ -13,38 +15,38 @@ use Drupal\Core\Condition\Annotation\Condition;
  *
  * @Annotation
  */
-class AdministrationLanguageNegotiationCondition extends Condition
-{
+class AdministrationLanguageNegotiationCondition extends Condition {
 
   /**
-   * The administration language negotiation condition plugin ID.
+   * Description of the administration language negotiation condition plugin.
+   *
+   * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
+   */
+  public $description;
+
+  /**
+   * Administration language negotiation condition plugin ID.
    *
    * @var string
    */
-    public $id;
+  public $id;
 
-    /**
-     * The default weight of the administration language negotiation condition plugin.
-     *
-     * @var int
-     */
-    public $weight;
+  /**
+   * Human-readable name of the condition plugin.
+   *
+   * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
+   */
+  public $name;
 
-    /**
-     * The human-readable name of the administration language negotiation condition plugin.
-     *
-     * @var \Drupal\Core\Annotation\Translation
-     *
-     * @ingroup plugin_translatable
-     */
-    public $name;
+  /**
+   * Weight of the administration language negotiation condition plugin.
+   *
+   * @var int
+   */
+  public $weight;
 
-    /**
-     * The description of the administration language negotiation condition plugin.
-     *
-     * @var \Drupal\Core\Annotation\Translation
-     *
-     * @ingroup plugin_translatable
-     */
-    public $description;
 }
