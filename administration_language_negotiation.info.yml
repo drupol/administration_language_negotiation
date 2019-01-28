@@ -6,4 +6,3 @@ package: Multilanguage
 configure: administration_language_negotiation.negotiation_administration_language
 dependencies:
 - drupal:locale
-configure: language.negotiation
