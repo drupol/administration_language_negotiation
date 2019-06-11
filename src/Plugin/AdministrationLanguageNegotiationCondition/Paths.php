@@ -6,7 +6,6 @@ namespace Drupal\administration_language_negotiation\Plugin\AdministrationLangua
 
 use Drupal\administration_language_negotiation\AdministrationLanguageNegotiationConditionBase;
 use Drupal\administration_language_negotiation\AdministrationLanguageNegotiationConditionInterface;
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Path\AliasManagerInterface;
@@ -184,7 +183,7 @@ class Paths extends AdministrationLanguageNegotiationConditionBase implements
       // Aliases have a language property that must be used to
       // search for a match on the current path alias, or the
       // default language will be used instead.
-      $path_alias = Unicode::strtolower($this->aliasManager->getAliasByPath($path, $langcode));
+      $path_alias = mb_strtolower($this->aliasManager->getAliasByPath($path, $langcode));
 
       $is_on_blacklisted_path = $this->pathMatcher->matchPath($path_alias, $blacklisted_path) ||
                 (($path !== $path_alias) && $this->pathMatcher->matchPath($path, $blacklisted_path));
